@@ -4,9 +4,9 @@ export class Entity<EntityProperties> {
   private _id: EntityID
   protected props: EntityProperties
 
-  constructor(props: EntityProperties, id?: string) {
+  protected constructor(props: EntityProperties, id?: EntityID) {
     this.props = props
-    this._id = new EntityID(id)
+    this._id = id ?? new EntityID()
   }
 
   get id() {
