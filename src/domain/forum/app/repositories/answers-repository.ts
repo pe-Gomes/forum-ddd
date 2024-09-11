@@ -5,5 +5,7 @@ export interface AnswersRepository {
 
   getById(id: string): Promise<Answer | null>
 
+  update(answer: Answer): Promise<void>
+
   delete(id: string): Promise<void>
 }
