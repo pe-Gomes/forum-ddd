@@ -14,6 +14,23 @@ export class InMemoryAnswerRepository implements AnswersRepository {
     )
   }
 
+  async findManyByQuestionId({
+    questionId,
+    page,
+    limit,
+  }: {
+    questionId: string
+    page: number
+    limit: number
+  }) {
+    return await Promise.resolve(
+      this.answers
+        .filter((question) => question.questionId.toString() === questionId)
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice((page - 1) * limit, page * limit),
+    )
+  }
+
   async update(answer: Answer) {
     const answerIdx = this.answers.findIndex(
       (item) => item.id.toString() === answer.id.toString(),

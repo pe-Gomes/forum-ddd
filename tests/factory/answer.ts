@@ -5,7 +5,10 @@ import {
 } from '@/domain/forum/enterprise/entities/answer'
 import { faker } from '@faker-js/faker'
 
-export function createAnswer(overrides: Partial<AnswerProps>, id?: EntityID) {
+export function createAnswer(
+  overrides: Partial<AnswerProps> = {},
+  id?: EntityID,
+) {
   return Answer.create(
     {
       content: faker.lorem.text(),
