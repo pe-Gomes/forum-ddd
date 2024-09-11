@@ -20,6 +20,14 @@ export class InMemoryQuestionsRepository implements QuestionsRepository {
     )
   }
 
+  async getMany({ page, limit }: { page: number; limit: number }) {
+    return await Promise.resolve(
+      this.questions
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice((page - 1) * limit, page * limit),
+    )
+  }
+
   async update(question: Question) {
     const questionIdx = this.questions.findIndex(
       (q) => q.id.toString() === question.id.toString(),
