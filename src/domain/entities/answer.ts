@@ -15,8 +15,8 @@ type AnswerProps = {
 type CreateAnswerArgs = Optional<AnswerProps, 'createdAt'>
 
 export class Answer extends Entity<AnswerProps> {
-  get content() {
-    return this.props.content
+  private touch() {
+    this.props.updatedAt = new Date()
   }
 
   static create(props: CreateAnswerArgs, id?: EntityID) {
@@ -29,5 +29,33 @@ export class Answer extends Entity<AnswerProps> {
     )
 
     return question
+  }
+
+  get content() {
+    return this.props.content
+  }
+  set content(content: string) {
+    this.props.content = content
+    this.touch()
+  }
+
+  get excerpt() {
+    return this.content.substring(0, 120).trimEnd().concat('...')
+  }
+
+  get createdAt() {
+    return this.props.createdAt
+  }
+
+  get updatedAt() {
+    return this.props.createdAt
+  }
+
+  get authorId() {
+    return this.props.authorId
+  }
+
+  get questionId() {
+    return this.props.questionId
   }
 }
