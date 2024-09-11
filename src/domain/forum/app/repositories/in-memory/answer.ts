@@ -1,4 +1,4 @@
-import { type Answer } from '@/domain/entities/answer'
+import { type Answer } from '@/domain/forum/enterprise/entities/answer'
 import { type AnswersRepository } from '../answers-repository'
 
 export class InMemoryAnswerRepository implements AnswersRepository {
