@@ -1,3 +1,4 @@
+import { type Answer } from '../../enterprise/entities/answer'
 import { type AnswersRepository } from '../repositories/answers-repository'
 
 type EditAnswerRequest = {
@@ -6,9 +7,13 @@ type EditAnswerRequest = {
   content: string
 }
 
+type EditAnswerResponse = {
+  answer: Answer
+}
+
 export class EditAnswerUseCase {
   constructor(private questionRepository: AnswersRepository) {}
-  async execute(args: EditAnswerRequest) {
+  async execute(args: EditAnswerRequest): Promise<EditAnswerResponse> {
     const answer = await this.questionRepository.getById(args.answerId)
 
     if (!answer) {
@@ -22,5 +27,7 @@ export class EditAnswerUseCase {
     answer.content = args.content
 
     await this.questionRepository.update(answer)
+
+    return { answer }
   }
 }
