@@ -3,7 +3,7 @@ import { type Optional } from '@/core/types/optional'
 
 import { Entity } from '@/core/entities/entity'
 
-type AnswerProps = {
+export type AnswerProps = {
   content: string
   createdAt: Date
   updatedAt?: Date
