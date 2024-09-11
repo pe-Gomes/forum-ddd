@@ -1,8 +1,9 @@
 import { type EntityID } from '@/core/entities/value-objects/entity-id'
-import { Slug } from './value-objects/slug'
 import { type Optional } from '@/core/types/optional'
 
+import { Slug } from './value-objects/slug'
 import { Entity } from '@/core/entities/entity'
+
 import dayjs from 'dayjs'
 
 type QuestionProps = {

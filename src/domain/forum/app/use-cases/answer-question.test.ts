@@ -1,17 +1,29 @@
-import { expect, test } from 'vitest'
-import { AnswerQuestionUseCase } from './answer-question'
+import { expect, it, describe, beforeEach } from 'vitest'
 import { InMemoryAnswerRepository } from '../repositories/in-memory/answer'
+import { AnswerQuestionUseCase } from './answer-question'
 
-const answerRepository = new InMemoryAnswerRepository()
+let repository: InMemoryAnswerRepository
+let useCase: AnswerQuestionUseCase
 
-test('create asnwer', async () => {
-  const useCase = new AnswerQuestionUseCase(answerRepository)
-
-  const answer = await useCase.execute({
-    content: 'answer content',
-    questionId: 'question id',
-    instructorId: 'user id',
+describe('Answer Question Use Case', () => {
+  beforeEach(() => {
+    repository = new InMemoryAnswerRepository()
+    useCase = new AnswerQuestionUseCase(repository)
   })
 
-  expect(answer.content).toEqual('answer content')
+  it('should create a answer', async () => {
+    const { answer } = await useCase.execute({
+      content: 'answer content',
+      instructorId: 'instructorId',
+      questionId: 'questionId',
+    })
+
+    expect(answer.id).toBeDefined()
+    expect(answer.content).toEqual('answer content')
+    expect(answer.authorId.toString()).toEqual('instructorId')
+    expect(answer.questionId.toString()).toEqual('questionId')
+    expect(answer.createdAt).toBeDefined()
+
+    expect(repository.answers[0].id).toBe(answer.id)
+  })
 })
