@@ -1,5 +1,5 @@
 import { expect, it, describe, beforeEach } from 'vitest'
-import { InMemoryQuestionsRepository } from '../repositories/in-memory/questions'
+import { InMemoryQuestionsRepository } from '@tests/in-memory-repository/questions'
 import { CreateQuestionUseCase } from './create-question'
 
 let repository: InMemoryQuestionsRepository

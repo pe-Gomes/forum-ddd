@@ -9,9 +9,10 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@tests/*": ["./tests/*"]
     }
   },
-  "include": ["./src/**/*.ts", "*.mjs", ".eslintrc.cjs"],
+  "include": ["./src/**/*.ts", "./tests/**/*.ts", "*.mjs", ".eslintrc.cjs"],
   "exclude": ["node_modules"]
 }

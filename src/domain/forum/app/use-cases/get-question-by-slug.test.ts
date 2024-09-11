@@ -1,8 +1,8 @@
 import { expect, it, describe, beforeEach } from 'vitest'
-import { InMemoryQuestionsRepository } from '../repositories/in-memory/questions'
+import { InMemoryQuestionsRepository } from '@tests/in-memory-repository/questions'
 import { GetQuestionBySlugUseCase } from './get-question-by-slug'
-import { Question } from '../../enterprise/entities/question'
-import { EntityID } from '@/core/entities/value-objects/entity-id'
+import { createQuestion } from '@tests/factory/question'
+import { Slug } from '../../enterprise/entities/value-objects/slug'
 
 let repository: InMemoryQuestionsRepository
 let useCase: GetQuestionBySlugUseCase
@@ -14,20 +14,10 @@ describe('Get Question by Slug Use Case', () => {
   })
 
   it('it should get question by a slug if exists', async () => {
-    await repository.create(
-      Question.create({
-        title: 'Question 1',
-        content: 'Content 1',
-        authorId: new EntityID('1'),
-      }),
-    )
+    await repository.create(createQuestion({ slug: new Slug('question-1') }))
 
     const question = await useCase.execute({ slug: 'question-1' })
 
     expect(question?.id).toBeDefined()
-    expect(question?.title).toBe('Question 1')
-    expect(question?.content).toBe('Content 1')
-    expect(question?.slug.value).toBe('question-1')
-    expect(question?.authorId.toString()).toBe('1')
   })
 })

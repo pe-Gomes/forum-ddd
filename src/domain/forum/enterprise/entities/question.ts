@@ -6,7 +6,7 @@ import { Entity } from '@/core/entities/entity'
 
 import dayjs from 'dayjs'
 
-type QuestionProps = {
+export type QuestionProps = {
   title: string
   content: string
   slug: Slug
