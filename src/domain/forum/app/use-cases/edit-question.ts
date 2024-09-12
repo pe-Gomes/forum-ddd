@@ -1,3 +1,5 @@
+import { type Either, failure, success } from '@/core/either'
+import { ResourceNotFoundError, NotAllowedError } from '@/core/errors'
 import { type Question } from '../../enterprise/entities/question'
 import { type QuestionsRepository } from '../repositories/questions-repository'
 
@@ -8,9 +10,12 @@ type EditQuestionRequest = {
   content: string
 }
 
-type EditQuestionResponse = {
-  question: Question
-}
+type EditQuestionResponse = Either<
+  NotAllowedError | ResourceNotFoundError,
+  {
+    question: Question
+  }
+>
 
 export class EditQuestionUseCase {
   constructor(private questionRepository: QuestionsRepository) {}
@@ -18,11 +23,11 @@ export class EditQuestionUseCase {
     const question = await this.questionRepository.getById(args.questionId)
 
     if (!question) {
-      throw new Error('Question not found')
+      return failure(new ResourceNotFoundError())
     }
 
     if (question.authorId.toString() !== args.authorId) {
-      throw new Error('Not allowed')
+      return failure(new NotAllowedError())
     }
 
     question.title = args.title
@@ -30,6 +35,6 @@ export class EditQuestionUseCase {
 
     await this.questionRepository.update(question)
 
-    return { question }
+    return success({ question })
   }
 }
