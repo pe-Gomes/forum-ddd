@@ -5,6 +5,7 @@ import { SetBestAnswerUseCase } from './set-best-answer'
 import { createQuestion } from '@tests/factory/question'
 import { createAnswer } from '@tests/factory/answer'
 import { EntityID } from '@/core/entities/value-objects/entity-id'
+import { NotAllowedError, ResourceNotFoundError } from '@/core/errors'
 
 let questionRepository: InMemoryQuestionsRepository
 let answerRepository: InMemoryAnswerRepository
@@ -57,24 +58,26 @@ describe('Set Best Answer Use Case', () => {
       ),
     )
 
-    await expect(
-      sut.execute({ answerId: 'answer-1', authorId: 'wrong-id' }),
-    ).rejects.toBeInstanceOf(Error)
+    const res = await sut.execute({
+      answerId: 'answer-1',
+      authorId: 'wrong-id',
+    })
+
+    expect(res.value).toBeInstanceOf(NotAllowedError)
   })
 
   it('it should throw an error if answer is not found', async () => {
     await questionRepository.create(createQuestion())
+    const res = await sut.execute({ answerId: 'answer-1', authorId: 'author' })
 
-    await expect(
-      sut.execute({ answerId: 'answer-1', authorId: 'author' }),
-    ).rejects.toBeInstanceOf(Error)
+    expect(res.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
   it('it should throw an error if question is not found', async () => {
     await answerRepository.create(createAnswer({}, new EntityID('answer')))
 
-    await expect(
-      sut.execute({ answerId: 'answer', authorId: 'author' }),
-    ).rejects.toBeInstanceOf(Error)
+    const res = await sut.execute({ answerId: 'answer', authorId: 'author' })
+
+    expect(res.value).toBeInstanceOf(ResourceNotFoundError)
   })
 })
