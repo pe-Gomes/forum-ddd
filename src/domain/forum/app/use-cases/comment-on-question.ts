@@ -36,6 +36,8 @@ export class CommentOnQuestionUseCase {
       content,
     })
 
+    await this.questionCommentRepository.create(comment)
+
     return { comment }
   }
 }
