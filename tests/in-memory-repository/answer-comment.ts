@@ -16,6 +16,24 @@ export class InMemoryAnswerCommentRepository
     )
   }
 
+  async getManyByAnswerId(
+    answerId: string,
+    {
+      page,
+      limit,
+    }: {
+      page: number
+      limit: number
+    },
+  ) {
+    return await Promise.resolve(
+      this.comments
+        .filter((comment) => comment.answerId.toString() === answerId)
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice((page - 1) * limit, page * limit),
+    )
+  }
+
   async delete(id: string) {
     const commentIdx = this.comments.findIndex(
       (comment) => comment.id.toString() === id,
