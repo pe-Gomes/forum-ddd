@@ -1,7 +1,6 @@
-import { Entity } from '@/core/entities/entity'
 import { type EntityID } from '@/core/entities/value-objects/entity-id'
 import { type Optional } from '@/core/types/optional'
-import { type CommentProps } from './comment'
+import { Comment, type CommentProps } from './comment'
 
 export interface QuestionCommentProps extends CommentProps {
   questionId: EntityID
@@ -9,7 +8,7 @@ export interface QuestionCommentProps extends CommentProps {
 
 type CreatequestionCommentArgs = Optional<QuestionCommentProps, 'createdAt'>
 
-export class QuestionComment extends Entity<QuestionCommentProps> {
+export class QuestionComment extends Comment<QuestionCommentProps> {
   public static create(args: CreatequestionCommentArgs, id?: EntityID) {
     return new QuestionComment(
       { ...args, createdAt: args.createdAt ?? new Date() },
