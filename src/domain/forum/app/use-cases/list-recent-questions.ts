@@ -1,12 +1,16 @@
 import { type PaginationParams } from '@/core/repositories/pagination-params'
 import { type QuestionsRepository } from '../repositories/questions-repository'
 import { type Question } from '../../enterprise/entities/question'
+import { type Either, success } from '@/core/either'
 
 type ListRecentQuestionsRequest = PaginationParams
 
-type ListRecentQuestionsResponse = {
-  questions: Question[]
-}
+type ListRecentQuestionsResponse = Either<
+  null,
+  {
+    questions: Question[]
+  }
+>
 
 export class ListRecentQuestionsUseCase {
   constructor(private questionRepository: QuestionsRepository) {}
@@ -19,10 +23,6 @@ export class ListRecentQuestionsUseCase {
       limit,
     })
 
-    if (questions.length === 0) {
-      throw new Error('No questions found')
-    }
-
-    return { questions }
+    return success({ questions })
   }
 }

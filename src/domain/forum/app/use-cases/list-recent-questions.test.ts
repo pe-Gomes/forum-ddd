@@ -29,12 +29,12 @@ describe('ListRecentQuestions', () => {
     vi.advanceTimersByTime(1000 * 60 * 60 * 24 * 2) // Add 2 days
     await questionRepository.create(createQuestion())
 
-    const { questions } = await sut.execute({ page: 1, limit: 20 })
+    const { value } = await sut.execute({ page: 1, limit: 20 })
 
-    expect(questions).toHaveLength(3)
-    expect(questions[0].createdAt.getDay()).toBe(5)
-    expect(questions[1].createdAt.getDay()).toBe(3)
-    expect(questions[2].createdAt.getDay()).toBe(1)
+    expect(value?.questions).toHaveLength(3)
+    expect(value?.questions[0].createdAt.getDay()).toBe(5)
+    expect(value?.questions[1].createdAt.getDay()).toBe(3)
+    expect(value?.questions[2].createdAt.getDay()).toBe(1)
   })
 
   it('should paginate questions properly', async () => {
@@ -42,8 +42,8 @@ describe('ListRecentQuestions', () => {
       await questionRepository.create(createQuestion())
     }
 
-    const { questions } = await sut.execute({ page: 2, limit: 10 })
+    const { value } = await sut.execute({ page: 2, limit: 10 })
 
-    expect(questions).toHaveLength(5)
+    expect(value?.questions).toHaveLength(5)
   })
 })
