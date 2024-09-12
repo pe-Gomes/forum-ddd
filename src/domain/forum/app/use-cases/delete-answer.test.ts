@@ -4,6 +4,7 @@ import { InMemoryAnswerRepository } from '@tests/in-memory-repository/answer'
 import { EntityID } from '@/core/entities/value-objects/entity-id'
 import { type AnswersRepository } from '../repositories/answers-repository'
 import { createAnswer } from '@tests/factory/answer'
+import { NotAllowedError, ResourceNotFoundError } from '@/core/errors'
 
 let answerRepository: AnswersRepository
 let sut: DeleteAnswerUseCase
@@ -32,9 +33,11 @@ describe('DeleteAnswer Use Case', () => {
   })
 
   it('should throw an error if question does not exist', async () => {
-    await expect(
-      sut.execute({ id: 'non-existing-id', authorId: '1' }),
-    ).rejects.toBeInstanceOf(Error)
+    const res = await sut.execute({ id: 'non-existing-id', authorId: '1' })
+
+    expect(res.isSuccess()).toBe(false)
+    expect(res.isFailure()).toBe(true)
+    expect(res.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
   it('should throw an error if author is not the author of the question', async () => {
@@ -46,8 +49,10 @@ describe('DeleteAnswer Use Case', () => {
         new EntityID('1'),
       ),
     )
-    await expect(
-      sut.execute({ id: '1', authorId: '3333' }),
-    ).rejects.toBeInstanceOf(Error)
+
+    const res = await sut.execute({ id: '1', authorId: '3333' })
+
+    expect(res.isFailure()).toBe(true)
+    expect(res.value).toBeInstanceOf(NotAllowedError)
   })
 })
