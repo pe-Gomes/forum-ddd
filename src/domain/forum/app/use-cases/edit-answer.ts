@@ -1,5 +1,7 @@
+import { NotAllowedError, ResourceNotFoundError } from '@/core/errors'
 import { type Answer } from '../../enterprise/entities/answer'
 import { type AnswersRepository } from '../repositories/answers-repository'
+import { type Either, failure, success } from '@/core/either'
 
 type EditAnswerRequest = {
   authorId: string
@@ -7,9 +9,12 @@ type EditAnswerRequest = {
   content: string
 }
 
-type EditAnswerResponse = {
-  answer: Answer
-}
+type EditAnswerResponse = Either<
+  NotAllowedError | ResourceNotFoundError,
+  {
+    answer: Answer
+  }
+>
 
 export class EditAnswerUseCase {
   constructor(private questionRepository: AnswersRepository) {}
@@ -17,17 +22,17 @@ export class EditAnswerUseCase {
     const answer = await this.questionRepository.getById(args.answerId)
 
     if (!answer) {
-      throw new Error('Answer not found')
+      return failure(new ResourceNotFoundError())
     }
 
     if (answer.authorId.toString() !== args.authorId) {
-      throw new Error('Not allowed')
+      return failure(new NotAllowedError())
     }
 
     answer.content = args.content
 
     await this.questionRepository.update(answer)
 
-    return { answer }
+    return success({ answer })
   }
 }
