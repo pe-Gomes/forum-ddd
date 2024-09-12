@@ -4,6 +4,7 @@ import { InMemoryAnswerCommentRepository } from '@tests/in-memory-repository/ans
 import { InMemoryQuestionCommentRepository } from '@tests/in-memory-repository/question-comment'
 import { createQuestionComment } from '@tests/factory/question-comment'
 import { createAnswerComment } from '@tests/factory/answer-comment'
+import { NotAllowedError, ResourceNotFoundError } from '@/core/errors'
 
 let answerCommentRepo: InMemoryAnswerCommentRepository
 let questionCommentRepo: InMemoryQuestionCommentRepository
@@ -46,39 +47,50 @@ describe('Delete Comments Use Case', () => {
     expect(answerCommentRepo.comments[0]).toBeUndefined()
   })
 
-  it('should throw an error if answer comment does not exist', async () => {
+  it('should return an error if answer comment does not exist', async () => {
     sut = new DeleteCommentUseCase(answerCommentRepo)
 
-    await expect(
-      sut.execute({ commentId: 'non-existing-id', authorId: '1' }),
-    ).rejects.toBeInstanceOf(Error)
+    const res = await sut.execute({
+      commentId: 'non-existing-id',
+      authorId: '1',
+    })
+
+    expect(res.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
-  it('should throw an error if question comment does not exist', async () => {
+  it('should return an error if question comment does not exist', async () => {
     sut = new DeleteCommentUseCase(questionCommentRepo)
 
-    await expect(
-      sut.execute({ commentId: 'non-existing-id', authorId: '1' }),
-    ).rejects.toBeInstanceOf(Error)
+    const res = await sut.execute({
+      commentId: 'non-existing-id',
+      authorId: '1',
+    })
+
+    expect(res.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
-  it('should throw an error if is not the author of the question comment', async () => {
+  it('should return an error if is not the author of the question comment', async () => {
     sut = new DeleteCommentUseCase(questionCommentRepo)
     const comment = createQuestionComment()
     await questionCommentRepo.create(comment)
 
-    await expect(
-      sut.execute({ commentId: comment.id.toString(), authorId: 'wrong-id' }),
-    ).rejects.toBeInstanceOf(Error)
+    const res = await sut.execute({
+      commentId: comment.id.toString(),
+      authorId: 'wrong-id',
+    })
+    expect(res.value).toBeInstanceOf(NotAllowedError)
   })
 
-  it('should throw an error if is not the author of the answer comment', async () => {
+  it('should return an error if is not the author of the answer comment', async () => {
     sut = new DeleteCommentUseCase(answerCommentRepo)
-    const comment = createQuestionComment()
-    await questionCommentRepo.create(comment)
+    const comment = createAnswerComment()
+    await answerCommentRepo.create(comment)
 
-    await expect(
-      sut.execute({ commentId: comment.id.toString(), authorId: 'wrong-id' }),
-    ).rejects.toBeInstanceOf(Error)
+    const res = await sut.execute({
+      commentId: comment.id.toString(),
+      authorId: 'wrong-id',
+    })
+
+    expect(res.value).toBeInstanceOf(NotAllowedError)
   })
 })
