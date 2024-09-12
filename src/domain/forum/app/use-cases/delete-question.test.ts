@@ -4,6 +4,7 @@ import { DeleteQuestionUseCase } from './delete-question'
 import { InMemoryQuestionsRepository } from '@tests/in-memory-repository/questions'
 import { createQuestion } from '@tests/factory/question'
 import { EntityID } from '@/core/entities/value-objects/entity-id'
+import { NotAllowedError, ResourceNotFoundError } from '@/core/errors'
 
 let questionRepository: QuestionsRepository
 let sut: DeleteQuestionUseCase
@@ -32,9 +33,9 @@ describe('DeleteQuestion Use Case', () => {
   })
 
   it('should throw an error if question does not exist', async () => {
-    await expect(
-      sut.execute({ id: 'non-existing-id', authorId: '1' }),
-    ).rejects.toBeInstanceOf(Error)
+    const res = await sut.execute({ id: 'non-existing-id', authorId: '1' })
+
+    expect(res.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
   it('should throw an error if author is not the author of the question', async () => {
@@ -46,8 +47,9 @@ describe('DeleteQuestion Use Case', () => {
         new EntityID('1'),
       ),
     )
-    await expect(
-      sut.execute({ id: '1', authorId: '3333' }),
-    ).rejects.toBeInstanceOf(Error)
+
+    const res = await sut.execute({ id: '1', authorId: 'wrong-id' })
+
+    expect(res.value).toBeInstanceOf(NotAllowedError)
   })
 })
