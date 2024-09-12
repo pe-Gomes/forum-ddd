@@ -2,22 +2,38 @@ import { expect, it, describe, beforeEach } from 'vitest'
 import { InMemoryQuestionsRepository } from '@tests/in-memory-repository/questions'
 import { GetQuestionBySlugUseCase } from './get-question-by-slug'
 import { createQuestion } from '@tests/factory/question'
-import { Slug } from '../../enterprise/entities/value-objects/slug'
+import { ResourceNotFoundError } from '@/core/errors'
 
 let repository: InMemoryQuestionsRepository
-let useCase: GetQuestionBySlugUseCase
+let sut: GetQuestionBySlugUseCase
 
 describe('Get Question by Slug Use Case', () => {
   beforeEach(() => {
     repository = new InMemoryQuestionsRepository()
-    useCase = new GetQuestionBySlugUseCase(repository)
+    sut = new GetQuestionBySlugUseCase(repository)
   })
 
   it('it should get question by a slug if exists', async () => {
-    await repository.create(createQuestion({ slug: new Slug('question-1') }))
+    const question = createQuestion()
+    await repository.create(question)
 
-    const question = await useCase.execute({ slug: 'question-1' })
+    const res = await sut.execute({ slug: question.slug.value })
 
-    expect(question?.id).toBeDefined()
+    expect(res.isSuccess()).toBe(true)
+
+    if (!res.isSuccess()) return
+
+    expect(res.value).toMatchObject({
+      question: {
+        title: question.title,
+        slug: question.slug,
+      },
+    })
+  })
+
+  it('it should return ResourceNotFoundError if question does not exists', async () => {
+    const res = await sut.execute({ slug: 'invalid-slug' })
+    expect(res.isFailure()).toBe(true)
+    expect(res.value).toBeInstanceOf(ResourceNotFoundError)
   })
 })
