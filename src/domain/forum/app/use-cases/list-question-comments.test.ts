@@ -32,16 +32,16 @@ describe('ListRecentAnswers', () => {
     vi.advanceTimersByTime(1000 * 60 * 60 * 24 * 2) // Add 2 days
     await questionCommentRepo.create(createQuestionComment({ questionId }))
 
-    const { comments } = await sut.execute({
+    const { value } = await sut.execute({
       questionId: questionId.toString(),
       page: 1,
       limit: 10,
     })
 
-    expect(comments).toHaveLength(3)
-    expect(comments[0].createdAt.getDay()).toBe(5)
-    expect(comments[1].createdAt.getDay()).toBe(3)
-    expect(comments[2].createdAt.getDay()).toBe(1)
+    expect(value?.comments).toHaveLength(3)
+    expect(value?.comments[0].createdAt.getDay()).toBe(5)
+    expect(value?.comments[1].createdAt.getDay()).toBe(3)
+    expect(value?.comments[2].createdAt.getDay()).toBe(1)
   })
 
   it('should paginate question comments properly', async () => {
@@ -51,12 +51,12 @@ describe('ListRecentAnswers', () => {
       await questionCommentRepo.create(createQuestionComment({ questionId }))
     }
 
-    const { comments } = await sut.execute({
+    const { value } = await sut.execute({
       questionId: questionId.toString(),
       page: 2,
       limit: 10,
     })
 
-    expect(comments).toHaveLength(5)
+    expect(value?.comments).toHaveLength(5)
   })
 })
