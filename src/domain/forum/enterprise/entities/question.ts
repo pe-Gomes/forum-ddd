@@ -1,8 +1,9 @@
 import { type EntityID } from '@/core/entities/value-objects/entity-id'
 import { type Optional } from '@/core/types/optional'
 
+import { QuestionAttachmentList } from './question-attachment-list'
 import { Slug } from './value-objects/slug'
-import { Entity } from '@/core/entities/entity'
+import { AggregateRoot } from '@/core/entities/aggregate-root'
 
 import dayjs from 'dayjs'
 
@@ -14,6 +15,7 @@ export type QuestionProps = {
   createdAt: Date
   updatedAt?: Date
 
+  attachments: QuestionAttachmentList
   authorId: EntityID
 }
 
@@ -21,9 +23,12 @@ export type QuestionProps = {
  * Create a type with 'createdAt' as optional. This is useful when creating a
  * new entity, because the date can be provided or not.
  */
-type CreateQuestionArgs = Optional<QuestionProps, 'createdAt' | 'slug'>
+type CreateQuestionArgs = Optional<
+  QuestionProps,
+  'createdAt' | 'slug' | 'attachments'
+>
 
-export class Question extends Entity<QuestionProps> {
+export class Question extends AggregateRoot<QuestionProps> {
   private touch() {
     this.props.updatedAt = new Date()
   }
@@ -33,6 +38,7 @@ export class Question extends Entity<QuestionProps> {
       {
         ...props,
         slug: props.slug ?? Slug.createFromText(props.title),
+        attachments: props.attachments ?? new QuestionAttachmentList(),
         createdAt: props.createdAt ?? new Date(),
       },
       id,
@@ -88,5 +94,13 @@ export class Question extends Entity<QuestionProps> {
   get isNew() {
     // Check if the question was created in the last 3 days
     return dayjs().diff(this.createdAt, 'days') <= 3
+  }
+
+  get attachments() {
+    return this.props.attachments
+  }
+
+  set attachments(attachments: QuestionAttachmentList) {
+    this.props.attachments = attachments
   }
 }
