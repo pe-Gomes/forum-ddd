@@ -1,14 +1,18 @@
 import { type AnswersRepository } from '../repositories/answers-repository'
 import { type Answer } from '../../enterprise/entities/answer'
 import { type PaginationParams } from '@/core/repositories/pagination-params'
+import { success, type Either } from '@/core/either'
 
 type ListRecentAnswersRequest = {
   questionId: string
 } & PaginationParams
 
-type ListRecentAnswersResponse = {
-  answers: Answer[]
-}
+type ListRecentAnswersResponse = Either<
+  null,
+  {
+    answers: Answer[]
+  }
+>
 
 export class ListAnswersForQuestionUseCase {
   constructor(private answerRepository: AnswersRepository) {}
@@ -23,10 +27,6 @@ export class ListAnswersForQuestionUseCase {
       limit,
     })
 
-    if (answers.length === 0) {
-      throw new Error('No answers found')
-    }
-
-    return { answers }
+    return success({ answers })
   }
 }

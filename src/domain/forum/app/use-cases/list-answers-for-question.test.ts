@@ -39,16 +39,16 @@ describe('ListRecentAnswers', () => {
     vi.advanceTimersByTime(1000 * 60 * 60 * 24 * 2) // Add 2 days
     await answerRepository.create(createAnswer({ questionId }))
 
-    const { answers } = await sut.execute({
+    const { value } = await sut.execute({
       questionId: questionId.toString(),
       page: 1,
       limit: 20,
     })
 
-    expect(answers).toHaveLength(3)
-    expect(answers[0].createdAt.getDay()).toBe(5)
-    expect(answers[1].createdAt.getDay()).toBe(3)
-    expect(answers[2].createdAt.getDay()).toBe(1)
+    expect(value?.answers).toHaveLength(3)
+    expect(value?.answers[0].createdAt.getDay()).toBe(5)
+    expect(value?.answers[1].createdAt.getDay()).toBe(3)
+    expect(value?.answers[2].createdAt.getDay()).toBe(1)
   })
 
   it('should paginate answers properly', async () => {
@@ -58,12 +58,12 @@ describe('ListRecentAnswers', () => {
       await answerRepository.create(createAnswer({ questionId }))
     }
 
-    const { answers } = await sut.execute({
+    const { value } = await sut.execute({
       questionId: questionId.toString(),
       page: 2,
       limit: 10,
     })
 
-    expect(answers).toHaveLength(5)
+    expect(value?.answers).toHaveLength(5)
   })
 })
