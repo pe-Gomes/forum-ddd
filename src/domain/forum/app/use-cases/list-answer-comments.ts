@@ -1,3 +1,4 @@
+import { success, type Either } from '@/core/either'
 import { type AnswerComment } from '../../enterprise/entities/answer-comment'
 import { type AnswerCommentsRepository } from '../repositories/answer-comments-repository'
 
@@ -7,9 +8,12 @@ type ListAnswerCommentsRequest = {
   limit: number
 }
 
-type ListAnswerCommentsResponse = {
-  comments: AnswerComment[]
-}
+type ListAnswerCommentsResponse = Either<
+  null,
+  {
+    comments: AnswerComment[]
+  }
+>
 
 export class ListAnswerCommentsUseCase {
   constructor(private answerRepository: AnswerCommentsRepository) {}
@@ -23,6 +27,6 @@ export class ListAnswerCommentsUseCase {
       limit,
     })
 
-    return { comments }
+    return success({ comments })
   }
 }
