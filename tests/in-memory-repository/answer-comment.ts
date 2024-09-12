@@ -15,4 +15,11 @@ export class InMemoryAnswerCommentRepository
       this.comments.find((comment) => comment.id.toString() === id) ?? null,
     )
   }
+
+  async delete(id: string) {
+    const commentIdx = this.comments.findIndex(
+      (comment) => comment.id.toString() === id,
+    )
+    this.comments.splice(commentIdx, 1)
+  }
 }

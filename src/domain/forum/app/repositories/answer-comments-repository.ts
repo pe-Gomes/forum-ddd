@@ -4,4 +4,6 @@ export interface AnswerCommentsRepository {
   create(comment: AnswerComment): Promise<void>
 
   getById(id: string): Promise<AnswerComment | null>
+
+  delete(id: string): Promise<void>
 }
