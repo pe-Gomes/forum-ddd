@@ -9,6 +9,18 @@ export class Entity<EntityProperties> {
     this._id = id ?? new EntityID()
   }
 
+  public equals(entity: Entity<unknown>) {
+    if (entity === this) {
+      return true
+    }
+
+    if (entity.id === this._id) {
+      return true
+    }
+
+    return false
+  }
+
   get id() {
     return this._id
   }

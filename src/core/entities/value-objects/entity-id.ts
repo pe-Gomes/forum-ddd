@@ -7,6 +7,10 @@ export class EntityID {
     this.value = value ?? randomUUID()
   }
 
+  public equals(id: EntityID) {
+    return id.value === this.value
+  }
+
   toString() {
     return this.value
   }
