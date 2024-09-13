@@ -1,6 +1,7 @@
 import { type Either, failure, success } from '@/core/either'
 import { type QuestionsRepository } from '../repositories/questions-repository'
 import { NotAllowedError, ResourceNotFoundError } from '@/core/errors'
+import { type QuestionAttachmentsRepository } from '../repositories/question-attachments-repository'
 
 type DeleteQuestionRequest = {
   id: string
@@ -13,7 +14,10 @@ type DeleteQuestionResponse = Either<
 >
 
 export class DeleteQuestionUseCase {
-  constructor(private questionRepository: QuestionsRepository) {}
+  constructor(
+    private questionRepository: QuestionsRepository,
+    private questionAttachmentRepository: QuestionAttachmentsRepository,
+  ) {}
 
   async execute({
     id,
@@ -30,6 +34,8 @@ export class DeleteQuestionUseCase {
     }
 
     await this.questionRepository.delete(id)
+
+    await this.questionAttachmentRepository.deleteManyByQuestionId(id)
 
     return success({})
   }
