@@ -7,4 +7,19 @@ export class InMemoryNotificationRepository implements NotificationsRepository {
   async create(notification: Notification) {
     this.notifications.push(notification)
   }
+
+  async getById(id: string): Promise<Notification | null> {
+    return (
+      this.notifications.find(
+        (notification) => notification.id.toString() === id,
+      ) ?? null
+    )
+  }
+  async update(notification: Notification): Promise<void> {
+    const notificationIdx = this.notifications.findIndex(
+      (n) => n.id.toString() === notification.id.toString(),
+    )
+
+    this.notifications[notificationIdx] = notification
+  }
 }
