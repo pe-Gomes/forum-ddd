@@ -4,34 +4,59 @@ import { InMemoryAnswerRepository } from '@tests/in-memory-repository/answer'
 import { EntityID } from '@/core/entities/value-objects/entity-id'
 import { createAnswer } from '@tests/factory/answer'
 import { NotAllowedError, ResourceNotFoundError } from '@/core/errors'
+import { InMemoryAnswerAttachmentRepository } from '@tests/in-memory-repository/answer-attachment'
+import { createAnswerAttachment } from '@tests/factory/answer-attachment'
 
 let answerRepository: InMemoryAnswerRepository
+let answerAttachmentRepo: InMemoryAnswerAttachmentRepository
 let sut: EditAnswerUseCase
 
 describe('EditAnswer Use Case', () => {
   beforeEach(() => {
     answerRepository = new InMemoryAnswerRepository()
-    sut = new EditAnswerUseCase(answerRepository)
+    answerAttachmentRepo = new InMemoryAnswerAttachmentRepository()
+    sut = new EditAnswerUseCase(answerRepository, answerAttachmentRepo)
   })
 
   it('should edit a answer an existing question', async () => {
-    await answerRepository.create(
-      createAnswer(
-        {
-          authorId: new EntityID('1'),
-        },
-        new EntityID('2'),
-      ),
+    const answer = createAnswer({
+      authorId: new EntityID('1'),
+    })
+    await answerRepository.create(answer)
+
+    answerAttachmentRepo.answerAttachments.push(
+      createAnswerAttachment({
+        answerId: answer.id,
+        attachmentId: new EntityID('1'),
+      }),
+      createAnswerAttachment({
+        answerId: answer.id,
+        attachmentId: new EntityID('2'),
+      }),
     )
+
     await sut.execute({
       content: 'test',
       authorId: '1',
-      answerId: '2',
+      answerId: answer.id.toString(),
+      attachmentsIds: ['1', '3'],
     })
 
     expect(answerRepository.answers[0]).toMatchObject({
       content: 'test',
     })
+    expect(answerRepository.answers[0].attachments.currentItems).toHaveLength(2)
+    expect(answerRepository.answers[0].attachments.currentItems).toEqual([
+      expect.objectContaining({
+        attachmentId: new EntityID('1'),
+      }),
+      expect.objectContaining({
+        attachmentId: new EntityID('3'),
+      }),
+    ])
+    expect(
+      answerRepository.answers[0].attachments.getRemovedItems(),
+    ).toHaveLength(1)
   })
 
   it('should NOT edit a answer of a different author', async () => {

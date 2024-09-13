@@ -1,7 +1,7 @@
 import { Entity } from '@/core/entities/entity'
 import { type EntityID } from '@/core/entities/value-objects/entity-id'
 
-type AnswerAttachmentProps = {
+export type AnswerAttachmentProps = {
   answerId: EntityID
   attachmentId: EntityID
 }

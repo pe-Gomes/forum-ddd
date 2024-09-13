@@ -1,12 +1,18 @@
-import { NotAllowedError, ResourceNotFoundError } from '@/core/errors'
 import { type Answer } from '../../enterprise/entities/answer'
 import { type AnswersRepository } from '../repositories/answers-repository'
 import { type Either, failure, success } from '@/core/either'
+import { type AnswerAttachmentsRepository } from '../repositories/answer-attachments-repository'
+
+import { NotAllowedError, ResourceNotFoundError } from '@/core/errors'
+import { AnswerAttachment } from '../../enterprise/entities/answer-attachment'
+import { EntityID } from '@/core/entities/value-objects/entity-id'
+import { AnswerAttachmentList } from '../../enterprise/entities/answer-attachment-list'
 
 type EditAnswerRequest = {
   authorId: string
   answerId: string
   content: string
+  attachmentsIds?: string[]
 }
 
 type EditAnswerResponse = Either<
@@ -17,9 +23,12 @@ type EditAnswerResponse = Either<
 >
 
 export class EditAnswerUseCase {
-  constructor(private questionRepository: AnswersRepository) {}
+  constructor(
+    private answerRepository: AnswersRepository,
+    private answerAttachmentRepository: AnswerAttachmentsRepository,
+  ) {}
   async execute(args: EditAnswerRequest): Promise<EditAnswerResponse> {
-    const answer = await this.questionRepository.getById(args.answerId)
+    const answer = await this.answerRepository.getById(args.answerId)
 
     if (!answer) {
       return failure(new ResourceNotFoundError())
@@ -29,9 +38,31 @@ export class EditAnswerUseCase {
       return failure(new NotAllowedError())
     }
 
-    answer.content = args.content
+    // Handle new attachments
+    const currentAnswerAttachments =
+      await this.answerAttachmentRepository.getManyByAnswerId(
+        answer.id.toString(),
+      )
 
-    await this.questionRepository.update(answer)
+    const answerAttachmentList = new AnswerAttachmentList(
+      currentAnswerAttachments,
+    )
+
+    const answerAttachments = args.attachmentsIds?.map((id) =>
+      AnswerAttachment.create({
+        answerId: answer.id,
+        attachmentId: new EntityID(id),
+      }),
+    )
+
+    if (answerAttachments) {
+      answerAttachmentList.update(answerAttachments)
+    }
+
+    answer.content = args.content
+    answer.attachments = answerAttachmentList
+
+    await this.answerRepository.update(answer)
 
     return success({ answer })
   }
