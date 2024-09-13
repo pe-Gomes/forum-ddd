@@ -30,7 +30,7 @@ export class CreateQuestionUseCase {
     })
 
     if (attachmentsIds) {
-      const questionAttachments = attachmentsIds?.map((attachmentId) => {
+      const questionAttachments = attachmentsIds.map((attachmentId) => {
         return QuestionAttachment.create({
           attachmentId: new EntityID(attachmentId),
           questionId: question.id,
