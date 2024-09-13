@@ -1,11 +1,14 @@
 import { type Answer } from '@/domain/forum/enterprise/entities/answer'
 import { type AnswersRepository } from '@/domain/forum/app/repositories/answers-repository'
+import { DomainEvents } from '@/core/events/domain-events'
 
 export class InMemoryAnswerRepository implements AnswersRepository {
   public answers: Answer[] = []
 
   async create(answer: Answer) {
     await Promise.resolve(this.answers.push(answer))
+
+    DomainEvents.dispatchEventsForAggregate(answer.id)
   }
 
   async getById(id: string) {
@@ -37,6 +40,8 @@ export class InMemoryAnswerRepository implements AnswersRepository {
     )
 
     await Promise.resolve((this.answers[answerIdx] = answer))
+
+    DomainEvents.dispatchEventsForAggregate(answer.id)
   }
 
   async delete(id: string) {

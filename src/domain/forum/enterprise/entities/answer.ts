@@ -2,7 +2,8 @@ import { type EntityID } from '@/core/entities/value-objects/entity-id'
 import { type Optional } from '@/core/types/optional'
 
 import { AnswerAttachmentList } from './answer-attachment-list'
-import { Entity } from '@/core/entities/entity'
+import { AggregateRoot } from '@/core/entities/aggregate-root'
+import { AnswerCreatedEvent } from '../events/answer-created-event'
 
 export type AnswerProps = {
   content: string
@@ -16,13 +17,13 @@ export type AnswerProps = {
 
 type CreateAnswerArgs = Optional<AnswerProps, 'createdAt' | 'attachments'>
 
-export class Answer extends Entity<AnswerProps> {
+export class Answer extends AggregateRoot<AnswerProps> {
   private touch() {
     this.props.updatedAt = new Date()
   }
 
   static create(props: CreateAnswerArgs, id?: EntityID) {
-    const question = new Answer(
+    const answer = new Answer(
       {
         ...props,
         attachments: props.attachments ?? new AnswerAttachmentList(),
@@ -31,7 +32,13 @@ export class Answer extends Entity<AnswerProps> {
       id,
     )
 
-    return question
+    const isNewAnswer = !id
+
+    if (isNewAnswer) {
+      answer.addDomainEvent(new AnswerCreatedEvent(answer))
+    }
+
+    return answer
   }
 
   get content() {
