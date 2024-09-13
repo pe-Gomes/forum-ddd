@@ -12,18 +12,20 @@ describe('Answer Question Use Case', () => {
   })
 
   it('should create a answer', async () => {
-    const { answer } = await useCase.execute({
+    const res = await useCase.execute({
       content: 'answer content',
       instructorId: 'instructorId',
       questionId: 'questionId',
+      attachmentsIds: ['1', '2'],
     })
 
-    expect(answer.id).toBeDefined()
-    expect(answer.content).toEqual('answer content')
-    expect(answer.authorId.toString()).toEqual('instructorId')
-    expect(answer.questionId.toString()).toEqual('questionId')
-    expect(answer.createdAt).toBeDefined()
+    expect(res.value?.answer.id).toBeDefined()
+    expect(res.value?.answer.content).toEqual('answer content')
+    expect(res.value?.answer.authorId.toString()).toEqual('instructorId')
+    expect(res.value?.answer.questionId.toString()).toEqual('questionId')
+    expect(res.value?.answer.createdAt).toBeDefined()
+    expect(res.value?.answer.attachments).toBeDefined()
 
-    expect(repository.answers[0].id).toBe(answer.id)
+    expect(repository.answers[0].id).toBe(res.value?.answer.id)
   })
 })
